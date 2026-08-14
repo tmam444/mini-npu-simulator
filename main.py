@@ -98,6 +98,123 @@ def mode1_user_input():
     else:
         print("판정: B")
 
+def mode2_json_analysis():
+    print("\n#---------------------------------------")
+    print("# [1] 필터 로드")
+    print("#---------------------------------------")
+    try:
+        with open("data.json", "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception as e:
+        print(f"data.json 파일을 읽을 수 없습니다: {e}")
+        return
+
+    filters = data.get("filters", {})
+    patterns = data.get("patterns", {})
+    
+    for f_key in filters.keys():
+        print(f"✓ {f_key} 필터 로드 완료 (Cross, X)")
+
+    print("\n#---------------------------------------")
+    print("# [2] 패턴 분석 (라벨 정규화 적용)")
+    print("#---------------------------------------")
+    
+    total_tests = 0
+    passed_tests = 0
+    failed_tests = 0
+    fail_cases = []
+    
+    perf_data = {}
+    
+    for p_key, p_data in patterns.items():
+        total_tests += 1
+        print(f"--- {p_key} ---")
+        
+        parts = p_key.split("_")
+        if len(parts) < 2:
+            print("  잘못된 패턴 키 형식입니다. FAIL")
+            failed_tests += 1
+            fail_cases.append(f"{p_key}: 잘못된 패턴 키 형식")
+            continue
+            
+        n_str = parts[1]
+        filter_key = f"size_{n_str}"
+        
+        if filter_key not in filters:
+            print(f"  {filter_key} 필터가 존재하지 않습니다. FAIL")
+            failed_tests += 1
+            fail_cases.append(f"{p_key}: 필터 미존재")
+            continue
+            
+        pattern_input = p_data.get("input", [])
+        expected_raw = p_data.get("expected", "")
+        expected = normalize_label(expected_raw)
+        
+        try:
+            n = int(n_str)
+        except ValueError:
+            n = 0
+            
+        if len(pattern_input) != n or any(len(row) != n for row in pattern_input):
+            print(f"  패턴 크기 불일치 (예상: {n}x{n}). FAIL")
+            failed_tests += 1
+            fail_cases.append(f"{p_key}: 패턴 크기 불일치")
+            continue
+            
+        f_cross = filters[filter_key].get("cross", filters[filter_key].get("+", []))
+        f_x = filters[filter_key].get("x", filters[filter_key].get("X", []))
+        
+        start_time = time.perf_counter()
+        score_cross = 0.0
+        score_x = 0.0
+        for _ in range(10):
+            score_cross = mac_operation(pattern_input, f_cross)
+            score_x = mac_operation(pattern_input, f_x)
+        elapsed_ms = (time.perf_counter() - start_time) / 10 * 1000
+        
+        if filter_key not in perf_data:
+            perf_data[filter_key] = {"time_sum": 0.0, "count": 0, "n": n}
+        perf_data[filter_key]["time_sum"] += elapsed_ms
+        perf_data[filter_key]["count"] += 1
+        
+        print(f"  Cross 점수: {score_cross}")
+        print(f"  X 점수: {score_x}")
+        
+        decision = decide_result(score_cross, score_x)
+        
+        if decision == expected:
+            print(f"  판정: {decision} | expected: {expected} | PASS")
+            passed_tests += 1
+        else:
+            reason = "동점 규칙" if decision == "UNDECIDED" else "오답"
+            print(f"  판정: {decision} | expected: {expected} | FAIL ({reason})")
+            failed_tests += 1
+            fail_cases.append(f"{p_key}: {reason}으로 인한 FAIL")
+
+    print("\n#---------------------------------------")
+    print("# [3] 성능 분석 (평균/10회)")
+    print("#---------------------------------------")
+    print(f"{'크기':<10} {'평균 시간(ms)':<15} {'연산 횟수'}")
+    print("-" * 40)
+    
+    for f_key, data in sorted(perf_data.items(), key=lambda x: x[1]["n"]):
+        n = data["n"]
+        if data["count"] > 0:
+            avg_time = data["time_sum"] / data["count"]
+            print(f"{n}x{n:<8} {avg_time:<15.3f} {n*n}")
+
+    print("\n#---------------------------------------")
+    print("# [4] 결과 요약")
+    print("#---------------------------------------")
+    print(f"총 테스트: {total_tests}개")
+    print(f"통과: {passed_tests}개")
+    print(f"실패: {failed_tests}개")
+    
+    if failed_tests > 0:
+        print("\n실패 케이스:")
+        for fc in fail_cases:
+            print(f"- {fc}")
+
 def main():
     print("=== Mini NPU Simulator ===")
     print("\n[모드 선택]")
@@ -108,7 +225,7 @@ def main():
     if choice == "1":
         mode1_user_input()
     elif choice == "2":
-        print("data.json 분석 모드는 다음 단계에서 개발될 예정입니다.")
+        mode2_json_analysis()
     else:
         print("잘못된 선택입니다.")
 
