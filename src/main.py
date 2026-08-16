@@ -70,9 +70,11 @@ def mac_operation(pattern: Matrix, filter_matrix: Matrix) -> float:
       같은 위치의 값을 곱하고(Multiply), 모든 결과를 누적 합산(Accumulate)합니다.
       점수가 높을수록 패턴과 필터가 더 유사하다는 의미입니다.
 
-    [시간 복잡도]
+    [성능 병목 (O(N²))]
       O(N²) - N×N 행렬의 모든 원소를 한 번씩 순회하므로 연산 횟수는 N²입니다.
       N이 커질수록 연산량이 기하급수적으로 증가하여 NPU 같은 병렬 처리 칩이 필요합니다.
+      특히 대규모(N≥1000) 처리 시 연산 병렬화뿐만 아니라 메모리 접근 비용 절감(가중치 재사용),
+      캐시 친화적인 스트라이드 접근, 타일링(Blocking) 등의 최적화가 필수적입니다.
     """
     score: float = 0.0
     n: int = len(pattern)
@@ -97,10 +99,10 @@ def decide_result(score_cross: float, score_x: float, epsilon: float = EPSILON) 
     [반환값]
       'Cross'     : Cross 점수가 더 높을 때
       'X'         : X 점수가 더 높을 때
-      'UNDECIDED' : 두 점수 차이가 epsilon 미만(동점)일 때
+      '판정 불가' : 두 점수 차이가 epsilon 미만(동점)일 때
     """
     if abs(score_cross - score_x) < epsilon:
-        return 'UNDECIDED'
+        return '판정 불가'
     if score_cross > score_x:
         return 'Cross'
     return 'X'
@@ -171,13 +173,19 @@ def print_mode1_result(
 
     [동점 처리 - 모드 1]
       모드 1에서는 '판정 불가'로 표시합니다.
-      (모드 2에서는 'UNDECIDED'로 표시하고 FAIL로 집계 — 요구사항에 따른 차이)
+      (모드 2에서도 '판정 불가'로 표시하고 FAIL로 집계합니다)
+
+    [출력 예시]
+      A 점수: 8.9 (A 패턴과 더 유사함)
+      B 점수: 0.1
+      연산 시간(평균/10회): 0.005 ms
+      판정: A
     """
-    print(f"A 점수: {score_a}")
-    print(f"B 점수: {score_b}")
+    print(f"A 점수: {score_a} (값이 높을수록 필터 A와 유사함)")
+    print(f"B 점수: {score_b} (값이 높을수록 필터 B와 유사함)")
     print(f"연산 시간(평균/10회): {avg_time_ms:.3f} ms")
     if abs(score_a - score_b) < EPSILON:
-        print("판정: UNDECIDED")
+        print("판정: 판정 불가")
     elif score_a > score_b:
         print("판정: A")
     else:
@@ -322,7 +330,7 @@ def analyze_single_pattern(
       (PASS 여부, 실패 사유 리스트)
 
     [동점 처리 - 모드 2]
-      UNDECIDED가 나오면 expected와 일치하지 않으므로 무조건 FAIL로 집계됩니다.
+      '판정 불가'가 나오면 expected와 일치하지 않으므로 무조건 FAIL로 집계됩니다.
     """
     print(f"--- {p_key} ---")
     is_valid, n_str, filter_key, fails = validate_pattern_key(p_key, filters)
@@ -380,13 +388,13 @@ def evaluate_decision(
     판정 결과를 expected와 비교하여 PASS/FAIL을 출력하고 반환합니다.
 
     [FAIL 사유 분류]
-      - '동점 규칙': UNDECIDED (epsilon 내 동점)
+      - '동점 규칙': 판정 불가 (epsilon 내 동점)
       - '오답': 판정은 내렸으나 expected와 불일치
     """
     if decision == expected:
         print(f"  판정: {decision} | expected: {expected} | PASS")
         return True, []
-    reason: str = "동점 규칙" if decision == "UNDECIDED" else "오답"
+    reason: str = "동점 규칙" if decision == "판정 불가" else "오답"
     print(f"  판정: {decision} | expected: {expected} | FAIL ({reason})")
     return False, [f"{p_key}: {reason}으로 인한 FAIL"]
 
