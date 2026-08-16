@@ -2,6 +2,7 @@ from __future__ import annotations
 from custom_types import Matrix, MODE1_SIZE, EPSILON
 from core import measure_mac_time
 from utils import print_section_header
+import bonus
 
 def input_nxn_matrix(prompt_title: str, size: int = MODE1_SIZE) -> Matrix:
     """NxN 행렬을 콘솔에서 공백 기준으로 입력받고 검증합니다."""
@@ -33,27 +34,35 @@ def print_mode1_result(score_a: float, score_b: float, avg_time_ms: float) -> No
 
 def mode1_user_input() -> None:
     """[모드 1] 사용자가 3×3 필터 2개(A, B)와 패턴을 직접 입력하거나 자동 생성합니다."""
-    import bonus
-    
+
     print("\n[모드 1 옵션]")
     print("1. 직접 입력 (3x3)")
-    print("2. 자동 생성 (NxN 십자가/X 패턴 활용)")
+    print("2. 자동 생성 (NxN 십자가/X 패턴 활용 / 크기 3이상)")
     sub_choice = input("선택: ").strip()
 
     if sub_choice == "2":
         try:
             n = int(input("생성할 행렬 크기 N을 입력하세요 (예: 5): "))
             if n < 3: raise ValueError
+            
+            p_type = input("테스트할 패턴을 선택하세요 (1: Cross(+), 2: X): ").strip()
+            
             print_section_header(1, f"자동 생성: {n}x{n} 필터 및 패턴")
             filter_a = bonus.generate_cross_pattern(n)
             filter_b = bonus.generate_x_pattern(n)
-            pattern = bonus.generate_cross_pattern(n) # 예시로 십자가 패턴 사용
+            
+            if p_type == "2":
+                pattern = bonus.generate_x_pattern(n)
+                p_name = "X"
+            else:
+                pattern = bonus.generate_cross_pattern(n)
+                p_name = "Cross"
             
             print("\n[필터 A (Cross)]")
             bonus.print_matrix(filter_a)
             print("\n[필터 B (X)]")
             bonus.print_matrix(filter_b)
-            print("\n[입력 패턴 (Cross)]")
+            print(f"\n[입력 패턴 ({p_name})]")
             bonus.print_matrix(pattern)
             
             print("\n✓ 필터 및 패턴 생성 완료")
