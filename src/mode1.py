@@ -25,7 +25,7 @@ def print_mode1_result(score_a: float, score_b: float, avg_time_ms: float) -> No
     print(f"B 점수: {score_b} (값이 높을수록 필터 B와 유사함)")
     print(f"연산 시간(평균/10회): {avg_time_ms:.3f} ms")
     if abs(score_a - score_b) < EPSILON:
-        print("판정: UNDECIDED")
+        print("판정: 판정 불가")
     elif score_a > score_b:
         print("판정: A")
     else:
