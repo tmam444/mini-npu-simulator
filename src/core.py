@@ -29,7 +29,7 @@ def decide_result(score_cross: float, score_x: float, epsilon: float = EPSILON) 
     부동소수점 허용오차(epsilon) 기반으로 최종 판정을 내립니다.
     """
     if abs(score_cross - score_x) < epsilon:
-        return '판정 불가'
+        return 'UNDECIDED'
     if score_cross > score_x:
         return 'Cross'
     return 'X'

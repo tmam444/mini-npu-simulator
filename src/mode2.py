@@ -43,7 +43,7 @@ def evaluate_decision(p_key: str, decision: str, expected: str) -> tuple[bool, l
     if decision == expected:
         print(f"  판정: {decision} | expected: {expected} | PASS")
         return True, []
-    reason: str = "동점 규칙" if decision == "판정 불가" else "오답"
+    reason: str = "동점 규칙" if decision == "UNDECIDED" else "오답"
     print(f"  판정: {decision} | expected: {expected} | FAIL ({reason})")
     return False, [f"{p_key}: {reason}으로 인한 FAIL"]
 
