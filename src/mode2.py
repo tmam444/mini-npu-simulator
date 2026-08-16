@@ -39,11 +39,16 @@ def validate_pattern_size(p_key: str, pattern_input: Matrix, n: int) -> tuple[bo
         return False, fail_reasons
     return True, fail_reasons
 
-def evaluate_decision(p_key: str, decision: str, expected: str) -> tuple[bool, list[str]]:
+def evaluate_decision(p_key: str, decision: str, expected: str, score_diff: float = 0.0) -> tuple[bool, list[str]]:
     if decision == expected:
         print(f"  판정: {decision} | expected: {expected} | PASS")
         return True, []
-    reason: str = "동점 규칙" if decision == "UNDECIDED" else "오답"
+    
+    if decision == "UNDECIDED":
+        reason = f"동점 규칙 (점수 차이: {score_diff:.2e})"
+    else:
+        reason = "오답"
+        
     print(f"  판정: {decision} | expected: {expected} | FAIL ({reason})")
     return False, [f"{p_key}: {reason}으로 인한 FAIL"]
 
@@ -65,7 +70,8 @@ def run_mac_and_judge(
     print(f"  X 점수: {score_x}")
     expected: str = normalize_label(p_data.get("expected", ""))
     decision: str = decide_result(score_cross, score_x)
-    return evaluate_decision(p_key, decision, expected)
+    score_diff: float = abs(score_cross - score_x)
+    return evaluate_decision(p_key, decision, expected, score_diff)
 
 def analyze_single_pattern(
     p_key: str, p_data: dict, filters: dict[str, dict], perf_data: PerfDict
