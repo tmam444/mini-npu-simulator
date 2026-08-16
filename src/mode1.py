@@ -41,34 +41,41 @@ def mode1_user_input() -> None:
     sub_choice = input("선택: ").strip()
 
     if sub_choice == "2":
-        try:
-            n = int(input("생성할 행렬 크기 N을 입력하세요 (예: 5): "))
-            if n < 3: raise ValueError
-            
+        while True:
+            try:
+                n = int(input("생성할 행렬 크기 N을 입력하세요 (예: 5): "))
+                if n < 3:
+                    print("크기는 3 이상이어야 합니다. 다시 입력하세요.")
+                    continue
+                break
+            except ValueError:
+                print("올바른 정수를 입력하세요.")
+
+        while True:
             p_type = input("테스트할 패턴을 선택하세요 (1: Cross(+), 2: X): ").strip()
+            if p_type in ["1", "2"]:
+                break
+            print("1 또는 2를 입력하세요.")
             
-            print_section_header(1, f"자동 생성: {n}x{n} 필터 및 패턴")
-            filter_a = bonus.generate_cross_pattern(n)
-            filter_b = bonus.generate_x_pattern(n)
+        print_section_header(1, f"자동 생성: {n}x{n} 필터 및 패턴")
+        filter_a = bonus.generate_cross_pattern(n)
+        filter_b = bonus.generate_x_pattern(n)
+        
+        if p_type == "2":
+            pattern = bonus.generate_x_pattern(n)
+            p_name = "X"
+        else:
+            pattern = bonus.generate_cross_pattern(n)
+            p_name = "Cross"
             
-            if p_type == "2":
-                pattern = bonus.generate_x_pattern(n)
-                p_name = "X"
-            else:
-                pattern = bonus.generate_cross_pattern(n)
-                p_name = "Cross"
-            
-            print("\n[필터 A (Cross)]")
-            bonus.print_matrix(filter_a)
-            print("\n[필터 B (X)]")
-            bonus.print_matrix(filter_b)
-            print(f"\n[입력 패턴 ({p_name})]")
-            bonus.print_matrix(pattern)
-            
-            print("\n✓ 필터 및 패턴 생성 완료")
-        except ValueError:
-            print("올바른 크기(3 이상)를 입력하세요.")
-            return
+        print("\n[필터 A (Cross)]")
+        bonus.print_matrix(filter_a)
+        print("\n[필터 B (X)]")
+        bonus.print_matrix(filter_b)
+        print(f"\n[입력 패턴 ({p_name})]")
+        bonus.print_matrix(pattern)
+        
+        print("\n✓ 필터 및 패턴 생성 완료")
     else:
         print_section_header(1, "필터 입력")
         filter_a: Matrix = input_nxn_matrix("필터 A")
