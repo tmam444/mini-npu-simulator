@@ -108,4 +108,4 @@ def mode1_user_input() -> None:
     
     if sub_choice == "2":
         # 보너스 1 요구사항 연동 (최적화 성능 비교)
-        bonus.compare_mac_performance(n)
+        bonus.compare_mac_performance(pattern, filter_a)
