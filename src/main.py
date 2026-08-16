@@ -457,7 +457,10 @@ def mode2_json_analysis() -> None:
       필터 로드 → 패턴 순회(키 검증 → 크기 검증 → MAC 연산 → 판정)
       → 성능 분석 표 출력 → 결과 요약 출력
     """
-    data: dict | None = load_json_data("data.json")
+    import os
+    base_dir: str = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    json_path: str = os.path.join(base_dir, "data", "data.json")
+    data: dict | None = load_json_data(json_path)
     if data is None:
         return
     filters: dict[str, dict] = data.get("filters", {})
