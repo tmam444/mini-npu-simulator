@@ -41,7 +41,7 @@ def validate_pattern_size(p_key: str, pattern_input: Matrix, n: int) -> tuple[bo
 
 def evaluate_decision(p_key: str, decision: str, expected: str, score_diff: float = 0.0) -> tuple[bool, list[str]]:
     if decision == expected:
-        print(f"  판정: {decision} | expected: {expected} | PASS")
+        print(f"  판정: expected: {expected} | PASS")
         return True, []
     
     if decision == "UNDECIDED":
