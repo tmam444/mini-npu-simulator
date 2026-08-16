@@ -32,13 +32,33 @@ def print_mode1_result(score_a: float, score_b: float, avg_time_ms: float) -> No
         print("판정: B")
 
 def mode1_user_input() -> None:
-    """[모드 1] 사용자가 3×3 필터 2개(A, B)와 패턴을 직접 입력합니다."""
-    print_section_header(1, "필터 입력")
-    filter_a: Matrix = input_nxn_matrix("필터 A")
-    filter_b: Matrix = input_nxn_matrix("필터 B")
+    """[모드 1] 사용자가 3×3 필터 2개(A, B)와 패턴을 직접 입력하거나 자동 생성합니다."""
+    import bonus
+    
+    print("\n[모드 1 옵션]")
+    print("1. 직접 입력 (3x3)")
+    print("2. 자동 생성 (NxN 십자가/X 패턴 활용)")
+    sub_choice = input("선택: ").strip()
 
-    print_section_header(2, "패턴 입력")
-    pattern: Matrix = input_nxn_matrix("패턴")
+    if sub_choice == "2":
+        try:
+            n = int(input("생성할 행렬 크기 N을 입력하세요 (예: 5): "))
+            if n < 3: raise ValueError
+            print_section_header(1, f"자동 생성: {n}x{n} 필터 및 패턴")
+            filter_a = bonus.generate_cross_pattern(n)
+            filter_b = bonus.generate_x_pattern(n)
+            pattern = bonus.generate_cross_pattern(n) # 예시로 십자가 패턴 사용
+            print("✓ 필터 A(Cross), 필터 B(X), 패턴(Cross) 생성 완료")
+        except ValueError:
+            print("올바른 크기(3 이상)를 입력하세요.")
+            return
+    else:
+        print_section_header(1, "필터 입력")
+        filter_a: Matrix = input_nxn_matrix("필터 A")
+        filter_b: Matrix = input_nxn_matrix("필터 B")
+
+        print_section_header(2, "패턴 입력")
+        pattern: Matrix = input_nxn_matrix("패턴")
 
     print_section_header(3, "MAC 결과")
     score_a: float; time_a: float
@@ -48,3 +68,8 @@ def mode1_user_input() -> None:
     
     avg_time: float = (time_a + time_b) / 2
     print_mode1_result(score_a, score_b, avg_time)
+    
+    if sub_choice == "2":
+        # 보너스 1 요구사항 연동 (최적화 성능 비교)
+        print_section_header(4, "보너스 과제: 1D 배열 변환 성능 비교")
+        bonus.compare_mac_performance(n)
