@@ -20,7 +20,7 @@ def mac_operation_1d(pattern_1d: list[float], filter_1d: list[float]) -> float:
 
 def compare_mac_performance(n: int) -> None:
     """[보너스 1] 2D 배열 vs 1D 배열 MAC 연산 성능 비교"""
-    print_section_header(1, f"보너스 1: 성능 비교 (크기 {n}x{n}, 반복 {REPEAT_COUNT}회)")
+    print_section_header(4, f"보너스 1: 성능 비교 (크기 {n}x{n}, 반복 {REPEAT_COUNT}회)")
     
     # 더미 데이터 생성
     pattern_2d = generate_cross_pattern(n)

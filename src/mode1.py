@@ -95,5 +95,4 @@ def mode1_user_input() -> None:
     
     if sub_choice == "2":
         # 보너스 1 요구사항 연동 (최적화 성능 비교)
-        print_section_header(4, "보너스 과제: 1D 배열 변환 성능 비교")
         bonus.compare_mac_performance(n)
