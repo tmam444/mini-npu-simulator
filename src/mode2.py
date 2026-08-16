@@ -45,7 +45,8 @@ def evaluate_decision(p_key: str, decision: str, expected: str, score_diff: floa
         return True, []
     
     if decision == "UNDECIDED":
-        reason = f"동점 규칙 (점수 차이: {score_diff:.2e})"
+        print(f"  [Info] 동점 원인 분석 - 두 점수 차이: {score_diff:.2e}")
+        reason = "동점 규칙"
     else:
         reason = "오답"
         
