@@ -100,8 +100,8 @@ def mode1_user_input() -> None:
         filter_a, filter_b, pattern = _handle_manual_input()
 
     print_section_header(3, "MAC 결과")
-    score_a, time_a = measure_mac_time(pattern, filter_a)
-    score_b, time_b = measure_mac_time(pattern, filter_b)
+    score_a, time_a, _ = measure_mac_time(pattern, filter_a)
+    score_b, time_b, _ = measure_mac_time(pattern, filter_b)
     
     avg_time: float = (time_a + time_b) / 2
     print_mode1_result(score_a, score_b, avg_time)

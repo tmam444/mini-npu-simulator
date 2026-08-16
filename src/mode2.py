@@ -54,9 +54,9 @@ def evaluate_decision(p_key: str, decision: str, expected: str, score_diff: floa
         
     return False, [f"{p_key}: {reason}으로 인한 FAIL"]
 
-def accumulate_perf_data(perf_data: PerfDict, filter_key: str, elapsed_ms: float, n: int) -> None:
+def accumulate_perf_data(perf_data: PerfDict, filter_key: str, elapsed_ms: float, n: int, op_count: int) -> None:
     if filter_key not in perf_data:
-        perf_data[filter_key] = {"time_sum": 0.0, "count": 0, "n": n}
+        perf_data[filter_key] = {"time_sum": 0.0, "count": 0, "n": n, "op_count": op_count}
     perf_data[filter_key]["time_sum"] += elapsed_ms
     perf_data[filter_key]["count"] += 1
 
@@ -65,9 +65,9 @@ def run_mac_and_judge(
     filter_key: str, pattern_input: Matrix, n: int, perf_data: PerfDict
 ) -> tuple[bool, list[str]]:
     f_cross, f_x = get_filter_matrices(filters, filter_key)
-    score_cross, time_cross = measure_mac_time(pattern_input, f_cross)
-    score_x, time_x = measure_mac_time(pattern_input, f_x)
-    accumulate_perf_data(perf_data, filter_key, (time_cross + time_x) / 2, n)
+    score_cross, time_cross, op_count = measure_mac_time(pattern_input, f_cross)
+    score_x, time_x, _ = measure_mac_time(pattern_input, f_x)
+    accumulate_perf_data(perf_data, filter_key, (time_cross + time_x) / 2, n, op_count)
     print(f"  Cross 점수: {score_cross}")
     print(f"  X 점수: {score_x}")
     expected: str = normalize_label(p_data.get("expected", ""))
@@ -99,10 +99,10 @@ def print_performance_table(perf_data: PerfDict) -> None:
     print("-" * 40)
     sorted_items = sorted(perf_data.items(), key=lambda x: x[1]["n"])
     for f_key, data in sorted_items:
-        n, count = int(data["n"]), int(data["count"])
+        n, count, op_count = int(data["n"]), int(data["count"]), int(data["op_count"])
         if count > 0:
             avg_time: float = float(data["time_sum"]) / count
-            print(f"{n}x{n:<8} {avg_time:<15.3f} {n * n}")
+            print(f"{n}x{n:<8} {avg_time:<15.3f} {op_count}")
 
 def print_test_summary(total: int, passed: int, failed: int, fail_cases: list[str]) -> None:
     print_section_header(4, "결과 요약")

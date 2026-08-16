@@ -11,12 +11,14 @@ def flatten_matrix(matrix: Matrix) -> list[float]:
     """2차원 배열을 1차원 배열로 변환합니다."""
     return [val for row in matrix for val in row]
 
-def mac_operation_1d(pattern_1d: list[float], filter_1d: list[float]) -> float:
+def mac_operation_1d(pattern_1d: list[float], filter_1d: list[float]) -> tuple[float, int]:
     """1차원 배열을 이용한 MAC 연산 (메모리 접근 단순화)"""
     score: float = 0.0
+    op_count: int = 0
     for i in range(len(pattern_1d)):
         score += pattern_1d[i] * filter_1d[i]
-    return score
+        op_count += 1
+    return score, op_count
 
 def compare_mac_performance(pattern_2d: Matrix, filter_2d: Matrix) -> None:
     """[보너스 1] 2D 배열 vs 1D 배열 MAC 연산 성능 비교"""
@@ -29,13 +31,13 @@ def compare_mac_performance(pattern_2d: Matrix, filter_2d: Matrix) -> None:
     # 2D 측정
     start_2d = time.perf_counter()
     for _ in range(REPEAT_COUNT):
-        mac_operation(pattern_2d, filter_2d)
+        _, _ = mac_operation(pattern_2d, filter_2d)
     time_2d = (time.perf_counter() - start_2d) * 1000
 
     # 1D 측정
     start_1d = time.perf_counter()
     for _ in range(REPEAT_COUNT):
-        mac_operation_1d(pattern_1d, filter_1d)
+        _, _ = mac_operation_1d(pattern_1d, filter_1d)
     time_1d = (time.perf_counter() - start_1d) * 1000
 
     print(f"- 2D 배열 MAC 연산 총 소요 시간: {time_2d:.4f} ms")
