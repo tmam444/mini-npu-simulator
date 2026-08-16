@@ -48,7 +48,15 @@ def mode1_user_input() -> None:
             filter_a = bonus.generate_cross_pattern(n)
             filter_b = bonus.generate_x_pattern(n)
             pattern = bonus.generate_cross_pattern(n) # 예시로 십자가 패턴 사용
-            print("✓ 필터 A(Cross), 필터 B(X), 패턴(Cross) 생성 완료")
+            
+            print("\n[필터 A (Cross)]")
+            bonus.print_matrix(filter_a)
+            print("\n[필터 B (X)]")
+            bonus.print_matrix(filter_b)
+            print("\n[입력 패턴 (Cross)]")
+            bonus.print_matrix(pattern)
+            
+            print("\n✓ 필터 및 패턴 생성 완료")
         except ValueError:
             print("올바른 크기(3 이상)를 입력하세요.")
             return
