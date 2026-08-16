@@ -43,6 +43,8 @@ python src/main.py
 ### 2. 시간 복잡도 분석: $O(N^2)$
 MAC 연산은 행렬의 모든 원소를 한 번씩 순회하므로 행렬 크기 N에 대해 $O(N^2)$의 시간 복잡도를 가집니다.
 
+![Time Complexity Graph](docs/assets/time_complexity_graph.png)
+
 | 행렬 크기 | 원소 수 (연산 횟수) | 예상 소요 시간 |
 | :---: | :---: | :---: |
 | **5 × 5** | 25회 | 기준 (1x) |
