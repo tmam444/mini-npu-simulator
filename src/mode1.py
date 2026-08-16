@@ -32,62 +32,75 @@ def print_mode1_result(score_a: float, score_b: float, avg_time_ms: float) -> No
     else:
         print("판정: B")
 
+def _handle_manual_input() -> tuple[Matrix, Matrix, Matrix]:
+    """직접 입력 모드 로직을 처리합니다."""
+    print_section_header(1, "필터 입력")
+    filter_a: Matrix = input_nxn_matrix("필터 A")
+    filter_b: Matrix = input_nxn_matrix("필터 B")
+
+    print_section_header(2, "패턴 입력")
+    pattern: Matrix = input_nxn_matrix("패턴")
+    return filter_a, filter_b, pattern
+
+def _get_auto_generation_params() -> tuple[int, str]:
+    """자동 생성에 필요한 N과 패턴 타입을 입력받습니다."""
+    while True:
+        try:
+            n = int(input("생성할 행렬 크기 N을 입력하세요 (예: 5): "))
+            if n < 3:
+                print("크기는 3 이상이어야 합니다. 다시 입력하세요.")
+                continue
+            break
+        except ValueError:
+            print("올바른 정수를 입력하세요.")
+
+    while True:
+        p_type = input("테스트할 패턴을 선택하세요 (1: Cross(+), 2: X): ").strip()
+        if p_type in ["1", "2"]:
+            break
+        print("1 또는 2를 입력하세요.")
+    return n, p_type
+
+def _handle_auto_generation() -> tuple[Matrix, Matrix, Matrix, int]:
+    """자동 생성 모드 로직을 처리합니다."""
+    n, p_type = _get_auto_generation_params()
+    
+    print_section_header(1, f"자동 생성: {n}x{n} 필터 및 패턴")
+    filter_a = bonus.generate_cross_pattern(n)
+    filter_b = bonus.generate_x_pattern(n)
+    
+    if p_type == "2":
+        pattern = bonus.generate_x_pattern(n)
+        p_name = "X"
+    else:
+        pattern = bonus.generate_cross_pattern(n)
+        p_name = "Cross"
+        
+    print("\n[필터 A (Cross)]")
+    bonus.print_matrix(filter_a)
+    print("\n[필터 B (X)]")
+    bonus.print_matrix(filter_b)
+    print(f"\n[입력 패턴 ({p_name})]")
+    bonus.print_matrix(pattern)
+    
+    print("\n✓ 필터 및 패턴 생성 완료")
+    return filter_a, filter_b, pattern, n
+
 def mode1_user_input() -> None:
     """[모드 1] 사용자가 3×3 필터 2개(A, B)와 패턴을 직접 입력하거나 자동 생성합니다."""
-
     print("\n[모드 1 옵션]")
     print("1. 직접 입력 (3x3)")
     print("2. 자동 생성 (NxN 십자가/X 패턴 활용 / 크기 3이상)")
     sub_choice = input("선택: ").strip()
 
+    n = 0
     if sub_choice == "2":
-        while True:
-            try:
-                n = int(input("생성할 행렬 크기 N을 입력하세요 (예: 5): "))
-                if n < 3:
-                    print("크기는 3 이상이어야 합니다. 다시 입력하세요.")
-                    continue
-                break
-            except ValueError:
-                print("올바른 정수를 입력하세요.")
-
-        while True:
-            p_type = input("테스트할 패턴을 선택하세요 (1: Cross(+), 2: X): ").strip()
-            if p_type in ["1", "2"]:
-                break
-            print("1 또는 2를 입력하세요.")
-            
-        print_section_header(1, f"자동 생성: {n}x{n} 필터 및 패턴")
-        filter_a = bonus.generate_cross_pattern(n)
-        filter_b = bonus.generate_x_pattern(n)
-        
-        if p_type == "2":
-            pattern = bonus.generate_x_pattern(n)
-            p_name = "X"
-        else:
-            pattern = bonus.generate_cross_pattern(n)
-            p_name = "Cross"
-            
-        print("\n[필터 A (Cross)]")
-        bonus.print_matrix(filter_a)
-        print("\n[필터 B (X)]")
-        bonus.print_matrix(filter_b)
-        print(f"\n[입력 패턴 ({p_name})]")
-        bonus.print_matrix(pattern)
-        
-        print("\n✓ 필터 및 패턴 생성 완료")
+        filter_a, filter_b, pattern, n = _handle_auto_generation()
     else:
-        print_section_header(1, "필터 입력")
-        filter_a: Matrix = input_nxn_matrix("필터 A")
-        filter_b: Matrix = input_nxn_matrix("필터 B")
-
-        print_section_header(2, "패턴 입력")
-        pattern: Matrix = input_nxn_matrix("패턴")
+        filter_a, filter_b, pattern = _handle_manual_input()
 
     print_section_header(3, "MAC 결과")
-    score_a: float; time_a: float
     score_a, time_a = measure_mac_time(pattern, filter_a)
-    score_b: float; time_b: float
     score_b, time_b = measure_mac_time(pattern, filter_b)
     
     avg_time: float = (time_a + time_b) / 2
