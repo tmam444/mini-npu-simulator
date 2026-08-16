@@ -47,10 +47,11 @@ def evaluate_decision(p_key: str, decision: str, expected: str, score_diff: floa
     if decision == "UNDECIDED":
         print(f"  [Info] 동점 원인 분석 - 두 점수 차이: {score_diff:.2e}")
         reason = "동점 규칙"
+        print(f"  판정: {decision} | FAIL ({reason})")
     else:
         reason = "오답"
+        print(f"  판정: {decision} | expected: {expected} | FAIL ({reason})")
         
-    print(f"  판정: {decision} | expected: {expected} | FAIL ({reason})")
     return False, [f"{p_key}: {reason}으로 인한 FAIL"]
 
 def accumulate_perf_data(perf_data: PerfDict, filter_key: str, elapsed_ms: float, n: int) -> None:
